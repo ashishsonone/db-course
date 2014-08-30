@@ -1,0 +1,22 @@
+*******************************************************************
+README for Assignment 1
+*******************************************************************
+
+1) Description of given source files:
+equijoin.c - You will implement the function equijoin in this file	
+groupbyagg.c - You will (optionally) implement the function groupbyagg.c in this file
+exsort.cpp - Contains implementation for external sort
+header.h - Contains, among other things, the enum Aggfn
+utils.c - Contains utility functions like CREATE, INSERT and DISPLAY which you can use to generate your own test data
+query_parser.c - Accepts a query input and calls the appropriate subroutine to process the query 
+
+2) Steps to build and execute the tool:
+$ make clean
+$ make
+$ ./assignment1
+
+When prompted, input your query string, as per the format specified in the assignment description.
+
+
+
+

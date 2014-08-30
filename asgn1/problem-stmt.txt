@@ -1,0 +1,119 @@
+Assignment 1: Join and Aggregation using Sorting
+================================================
+
+The goal of this assignment is to implement merge join (and in part 2, aggregation), using an already provided function for external sorting.
+
+The assignment should be done in C.
+
+Group size:
+===========
+
+Default group size is 2.  Max group size is 3.  If you form a group of size 3, you must do Part 2 of the assignment, otherwise Part 2 is optional.
+
+Submission Format:
+=================
+
+Your submission should be as a tar.gz or zip file of a directory whose name contains roll numbers of all team members, eg:  12005014_14005001_14004312 (the tar/zip file would also have the same name with a .tar.gz or .zip extension). Include a README file and give a very short description (1-2 lines) for each source file you have created.
+
+Problem Statement:
+==================
+
+You have been given an implementation of external sorting which takes a binary file as input and outputs a binary file.  The schema of the relation stored in the file is stored at the beginning of the file itself. The only types supported are  int, double, and fixed length char (strings).  See the documentation of the file format and the sort functions at the end of this assignment.
+
+First read the sample code provided along with the assignment to understand how to read data from the binary file, and how to write data to the binary file.
+
+Your task is to implement the following operations:
+
+1) Part 1:
+
+ Mandatory, marks: 50
+
+  Implement an equijoin function
+        equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlist1[], int attrlist2[], int numprojattrs, int projlist[][2])
+  where
+
+    rel1 and rel2 are the relations to be joined (stored in files), and outrel is the name of the output relation to be created with the join result
+    numjoinattrs is the number of attributes to be used in the join.
+    attrlist1 is an array of attribute offsets in rel1, and attrlist2 is for rel2, where the i'th attribute in each of these arrays is to be equated, and both arrays are of size numjoinattrs.
+    numprpojattrs is the number of attributes to be projected out.
+    projlist is an array of arrays, where
+        projlist[i][0] identifies the relation with 1 indicating rel1 and 2 indicating rel2 and
+        projlist[i][1] gives the attribute offset of the i'th attribute in the projection list  
+
+  See the test case files to understand the above interface better.  A blank template is provided in equijoin.c; you should fill in the template.
+
+  Use external sort as a subroutine (details below).  Make sure your join function works with duplicate join keys (you can assume the  number of duplicates is small enough to fit in memory). You can assume that any attributes equated are of the same type.
+
+2) Part 2: 
+
+Mandatory for groups of size 3, with 20 marks, total of 70 marks will be scaled down to 50.  Optional for groups of size 1 or 2; for groups of size 1 or 2, will not scale down marks, but if marks go over the maximum marks when marks for all assignments in this semester are added up, you will get only the maximum marks.  
+ 
+  Implement a groupby/aggregation function
+
+     groupbyagg(char* rel, char* outrel, int numgbattrs, int gbattrs[], int numaggs, int aggattrs[], Aggfn aggfns[])
+
+   where
+
+    rel is the relation on which aggregation is to be done, outrel is the name of the output relation
+    numgbattrs is the number of group by attributes, and gbattrs[] is an array of groupby attributes
+    numaggs is the number of attributes on which aggregation is to be done
+    aggattrs[] is an array of attributes on which aggregates are to be computed, and
+    aggfns[] is an array of aggregate functions, with the i'th one to be applied to the corresponding entry of aggattrs;
+    You have an enum (use the source file provided in assignment resources)
+    enum Aggfn {aggsum, aggcount, aggavg, aggmax, aggmin};
+
+ Note: it is enough if you implement sum, and min.  You are welcome to implement all of them.  You can assume that any attributes used for sum and avg are ints or doubles.
+
+   A blank template is provided in the file groupbyagg.c; you should fill in the template.
+
+Test Data
+
+Code to generate test data has been provided in the file assignment1.tgz. Download it, and run make to generate executables required for testing.  Do read the README file for instructions about running the code.
+
+The file test.c which we have provided contains a main function that invokes the above functions; it reads in test cases in the following format from standard input.
+
+  (1) JOIN r1 r2 GIVING rout ON 1.1 = 2.1 AND 1.4 = 2.3 PROJECT 1.3 2.4  
+
+  (2) GROUP r1 GIVING rout BY 1 4 AGG SUM 1 MIN 2
+
+  (3) SORT r1 GIVING rout ON 1 -3
+
+  (4) CREATE rout ATTRS int char 10 double
+
+  (5) INSERT r1 VALUES 5 Korth 3.2
+
+  (6) DISPLAY r1
+
+(Note: make sure to leave a single space between the symbols, since we are using a tokenizer not a parser)
+
+The file test.c has already implemented the above commands (3), (4), (5) and (6) to sort a relation, create a relation, insert records into a relation, and display a relation. You can run these commands to generate your test data. We will be evaluating your submissions with another set of test cases that we generate.
+
+Blank implementations have been provided for JOIN and GROUP in the files equijoin.c and groubyagg.c respectively (which are called from test.c). You should fill in the required code in these functions (adding other code as you feel necessary).
+
+Use test.c for your testing and submission, do NOT implement your own main function, since we will be using the above format to test your submissions.
+
+Use the provided make file and edit it as required, but running make should generate the executable; do not change the name of the executable.
+
+You do not need to implement the sort function, it has been provided already.  test.c has an example showing how it is to be invoked.
+
+Relation file format and sort function
+
+Each relation is a binary file which starts with a header in the following form, followed by binary data.
+
+4 byte unsigned int:  number of attributes  (call it n)
+metadata of n attributes, each of the form
+    type (4 bytes), length (4 bytes)
+    Type is one of the following:  1: int, 2: double, 3: char (fixed length)
+
+The actual data follows the metadata, and is all fixed length.
+
+The sort function takes the following parameters
+
+     sort(char *inputfilename, char *outputfilename, int numattrs, int attributes[], int bufsize)
+
+where
+
+    numattrs denotes the number of attributes to be used for comparison during sorting
+    attributes is an int array of size numattrs. Each element of the array is a number indicating the attribute position; a negative number -i denotes sorting attribute i in descending order.
+    bufsize is the size of the buffer (in bytes) - this buffer will be used as the sort buffer for initial run generation, and for buffering blocks during the merge phase.
+
