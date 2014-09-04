@@ -4,7 +4,10 @@
 #include "header.h"
 #include "equijoin.h"
 
-#define BUFFSIZE 8192
+#define BUFFSIZE 400
+#define DEBUG 0
+#define IFBUG if(DEBUG==1){
+#define ENDBUG }
 
 //FUNCTIONS defined elsewhere
 int** make2dint(int,int);
@@ -276,9 +279,9 @@ void adjust(){
 void next1(){
     curr1++;
     if(curr1 == total1){//read next block from file
-        printf("next1() : readsize %d, read# %d\n", erecsize[1], eblockrec[1]);
-		total1 = fread(eptrs[1],erecsize[1],eblockrec[1],efiles[1]);
         einitbufptr(1);
+		total1 = fread(eptrs[1],erecsize[1],eblockrec[1],efiles[1]);
+        printf("next1() : readsize %d, readmax# %d newtotal%d\n", erecsize[1], eblockrec[1], total1);
         curr1 = 0;
         if(total1 == 0){
             done = true; //file has ended
@@ -286,6 +289,7 @@ void next1(){
         }
     }
     else{
+        printf("next1() : incrementing to curr %d/%d\n", curr1, total1);
         eptrs[1] += erecsize[1];
     }
 }
@@ -293,9 +297,9 @@ void next1(){
 void next2(){
     curr2++;
     if(curr2 == total2){//read next block from file
-        printf("next2() : readsize %d, read# %d\n", erecsize[2], eblockrec[2]);
-		total2 = fread(eptrs[2],erecsize[2],eblockrec[2],efiles[2]);
         einitbufptr(2);
+		total2 = fread(eptrs[2],erecsize[2],eblockrec[2],efiles[2]);
+        printf("next2() : readsize %d, readmax# %d newtotal%d\n", erecsize[2], eblockrec[2], total2);
         curr2 = 0;
         if(total2 == 0) {
             printf("next2() : Relation 2 exausted\n");
@@ -303,6 +307,7 @@ void next2(){
         }
     }
     else{
+        printf("next2() : incrementing to curr %d/%d\n", curr2, total2);
         eptrs[2] += erecsize[2];
     }
 }
@@ -386,7 +391,7 @@ int ecompare(const void* a, const void* b)
 		{
 			case 1:								//Integer comparision
 				tempi = (*(int*)(a+offset1))-(*(int*)(b+offset2));
-                printf("ecompare : case1 : diff %d\n", tempi);
+                printf("ecompare : case1 : diff %d - %d = %d\n",(*(int*)(a+offset1)),(*(int*)(b+offset2)), tempi);
 				if(tempi>0)
 					ans = sign;
 				else if(tempi<0)
