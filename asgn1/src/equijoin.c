@@ -160,7 +160,29 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
     printf("Buff1 : #rec %d\n", total1);
     printf("Buff2 : #rec %d\n", total2);
 
+    done = false; //always initialize global variables
+
+    while(!done){
+        int comp = ecompare(eptrs[1], eptrs[2]);
+        if(comp == -1){//left is smaller, so increment it
+            next1();
+        }
+        else if(comp == 1){
+            next2();
+        }
+        else{
+            ewriteout(eptrs[1], eptrs[2]);
+            next1();
+            next2();
+        }
+    }
+
+    /* testing compare and writeout
+    int comp = ecompare(eptrs[1], eptrs[2]);
+    printf("compare result %d\n", comp);
+
     ewriteout(eptrs[1], eptrs[2]);
+    */
 
     //write output buffer records remaining to output file
     einitbufptr(0);
@@ -178,7 +200,10 @@ void next1(){
 		total1 = fread(eptrs[1],erecsize[1],eblockrec[1],efiles[1]);
         einitbufptr(1);
         curr1 = 0;
-        if(total1 == 0) done = true; //file has ended
+        if(total1 == 0){
+            done = true; //file has ended
+            printf("next1() : Relation 1 exausted\n");
+        }
     }
     else{
         eptrs[1] += erecsize[1];
@@ -192,7 +217,10 @@ void next2(){
 		total2 = fread(eptrs[2],erecsize[2],eblockrec[2],efiles[2]);
         einitbufptr(2);
         curr2 = 0;
-        if(total2 == 0) done = true; //file has ended
+        if(total2 == 0) {
+            printf("next2() : Relation 2 exausted\n");
+            done = true; //file has ended
+        }
     }
     else{
         eptrs[2] += erecsize[2];
@@ -278,6 +306,7 @@ int ecompare(const void* a, const void* b)
 		{
 			case 1:								//Integer comparision
 				tempi = (*(int*)(a+offset1))-(*(int*)(b+offset2));
+                printf("ecompare : case1 : diff %d\n", tempi);
 				if(tempi>0)
 					ans = sign;
 				else if(tempi<0)
