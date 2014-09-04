@@ -15,5 +15,6 @@ void ewrite_metadata();
 void next1();
 void next2();
 void ewriteout(void *left, void *right);
+void adjust();
 
 #endif /* EQUIJOIN_H_ */

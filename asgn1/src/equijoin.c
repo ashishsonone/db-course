@@ -41,6 +41,8 @@ void *temp_ptr; //used when processing right records with same attribute values(
                     
 unsigned en[3]; //no of attributes in NULL, rel1, rel2
 
+bool adjustment; //whether right relation's buffer was "adjusted", so that duplicate recs for current key come inside buffer
+
 /* Add equijoin code here */
 int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlist1[], int attrlist2[], int numprojattrs, int projlist[][2])
 {
@@ -162,18 +164,41 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
 
     done = false; //always initialize global variables
 
+    adjustment = false;
+
     while(!done){
         int comp = ecompare(eptrs[1], eptrs[2]);
         if(comp == -1){//left is smaller, so increment it
             next1();
+            adjustment = false;
         }
         else if(comp == 1){
             next2();
+            adjustment = false;
         }
         else{
-            ewriteout(eptrs[1], eptrs[2]);
-            next1();
-            next2();
+            if(adjustment == false){
+                adjust();
+                printf("adjustment called \n");
+                adjustment = true;
+            }
+            else{
+                printf("Already adjusted \n");
+            }
+            //handle all combinations of left tuple with matching entries in right without actually incrementing
+            //right pointer
+            int rem = total2-curr2;
+            temp_ptr = eptrs[2];
+
+            while(rem > 0){
+                int c = ecompare(eptrs[1], temp_ptr);
+                if(c != 0) break; //if not joinable, just break
+                ewriteout(eptrs[1], temp_ptr);
+                temp_ptr += erecsize[2];
+                rem--;
+            }
+
+            next1(); //only increment the left pointer
         }
     }
 
@@ -191,6 +216,9 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
     //system("rm *.jtmp");										//remove all the join temp files once program is complete.
     eclose_files();
     return 0;
+}
+
+void adjust(){
 }
 
 void next1(){
