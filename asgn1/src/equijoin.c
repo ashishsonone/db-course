@@ -58,13 +58,6 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
         printf("eattrlist1 %d : %d , eattrlist2 %d: %d\n", i, eattrlist1[i], i, eattrlist2[i]);
     }
 
-    enumprojattrs = numprojattrs;
-    eprojlist = make2dint(enumprojattrs, 2);
-	for(int i=0;i<enumprojattrs;i++){
-        eprojlist[i][0] = projlist[i][0];
-        eprojlist[i][1] = projlist[i][1];
-        printf("projlist %d : %d , %d\n", i, eprojlist[i][0], eprojlist[i][1]);
-    }
     
     //sort the relations
 	char sorted1[100], sorted2[100];
@@ -125,10 +118,39 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
         }
     }
 
+    //copy project list globally
+    if(numprojattrs != 0){
+        enumprojattrs = numprojattrs;
+        eprojlist = make2dint(enumprojattrs, 2);
+        for(int i=0;i<enumprojattrs;i++){
+            eprojlist[i][0] = projlist[i][0];
+            eprojlist[i][1] = projlist[i][1];
+            printf("projlist %d : %d , %d\n", i, eprojlist[i][0], eprojlist[i][1]);
+        }
+    }
+    else{
+        int index;
+        enumprojattrs = en[1] + en[2];
+        eprojlist = make2dint(enumprojattrs, 2);
+        for(int i=0; i<en[1]; i++){
+            eprojlist[i][0] = 1;
+            eprojlist[i][1] = i+1;
+            printf("projlist %d : %d , %d\n", i, eprojlist[i][0], eprojlist[i][1]);
+        }
+        for(int i=0; i<en[2]; i++){
+            index = i+en[1];
+            eprojlist[index][0] = 2;
+            eprojlist[index][1] = i+1;
+            printf("projlist %d : %d , %d\n", index, eprojlist[index][0], eprojlist[index][1]);
+        }
+    }
+
+    printf("come out\n");
+
     erecsize[0] = 0; //record size of projected output
-    for(i=0; i<numprojattrs; i++){
-        int r = projlist[i][0]; //relation
-        int at = projlist[i][1]; //attribute #
+    for(i=0; i<enumprojattrs; i++){
+        int r = eprojlist[i][0]; //relation
+        int at = eprojlist[i][1]; //attribute #
         erecsize[0] += eattributes[r][at][1];
         printf("r %d, at %d, erecsize %d\n", r, at, erecsize[0]);
     }
