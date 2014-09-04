@@ -58,7 +58,7 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
 	for(int i=0;i<enumjoinattrs;i++){
 		eattrlist1[i] = attrlist1[i];
 		eattrlist2[i] = attrlist2[i];
-        printf("eattrlist1 %d : %d , eattrlist2 %d: %d\n", i, eattrlist1[i], i, eattrlist2[i]);
+        IFBUG printf("eattrlist1 %d : %d , eattrlist2 %d: %d\n", i, eattrlist1[i], i, eattrlist2[i]); ENDBUG
     }
 
     
@@ -66,16 +66,16 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
 	char sorted1[100], sorted2[100];
 	sprintf(sorted1,"s.%d.jtmp",1); // .jtmp files are temporary files generated during join phase like these 2 sorted relations
 	sprintf(sorted2,"s.%d.jtmp",2);
-    printf("%s : %s\n", sorted1, sorted2);
+    IFBUG printf("%s : %s\n", sorted1, sorted2); ENDBUG
 
     int out1 = sort(rel1, sorted1, numjoinattrs, attrlist1, BUFFSIZE);
     int out2 = sort(rel2, sorted2, numjoinattrs, attrlist2, BUFFSIZE);
 
     if(!(out1 == 0 && out2 == 0)){
-        printf("equijoin : Something wrong with sorting relations %d, %d\n", out1, out2);
+        IFBUG printf("equijoin : Something wrong with sorting relations %d, %d\n", out1, out2); ENDBUG
         return 1;
     }
-    printf("\n Now Merge phase remaining \n");
+    IFBUG printf("\n Now Merge phase remaining \n"); ENDBUG
 
 	//Initialization
     
@@ -83,20 +83,20 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
 	efiles[1]=fopen(sorted1,"rb");
 	if(!efiles[1])
 	{
-		printf("File: %s not found!\n", sorted1);
+		IFBUG printf("File: %s not found!\n", sorted1); ENDBUG
 		return 1;
 	}
 	efiles[2]=fopen(sorted2,"rb");
 	if(!efiles[2])
 	{
-		printf("File: %s not found!\n", sorted1);
+		IFBUG printf("File: %s not found!\n", sorted1); ENDBUG
 		return 1;
 	}
 
 	efiles[0]=fopen(outrel,"wb");
 	if(!efiles[0])
 	{
-		printf("File: %s not created!\n", outrel);
+		IFBUG printf("File: %s not created!\n", outrel); ENDBUG
 		return 1;
 	}
 
@@ -107,7 +107,7 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
         fread(&en[irel],sizeof(unsigned),1,efiles[irel]);
         eattributes[irel] = make2dint(en[irel]+1, 3);
 
-        printf("n : %d\n", en[irel]);
+        IFBUG printf("n : %d\n", en[irel]); ENDBUG
 
         erecsize[irel] = 0;
         for(i=1; i<=en[irel]; i++){
@@ -117,7 +117,7 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
             eattributes[irel][i][1] = temp;
             eattributes[irel][i][2] = erecsize[irel];
             erecsize[irel] += temp;
-            printf("attr %d : %d : %d : %d \n", i, eattributes[irel][i][0], eattributes[irel][i][1], eattributes[irel][i][2]);
+            IFBUG printf("attr %d : %d : %d : %d \n", i, eattributes[irel][i][0], eattributes[irel][i][1], eattributes[irel][i][2]); ENDBUG
         }
     }
 
@@ -128,7 +128,7 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
         for(int i=0;i<enumprojattrs;i++){
             eprojlist[i][0] = projlist[i][0];
             eprojlist[i][1] = projlist[i][1];
-            printf("projlist %d : %d , %d\n", i, eprojlist[i][0], eprojlist[i][1]);
+            IFBUG printf("projlist %d : %d , %d\n", i, eprojlist[i][0], eprojlist[i][1]); ENDBUG
         }
     }
     else{
@@ -138,24 +138,24 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
         for(int i=0; i<en[1]; i++){
             eprojlist[i][0] = 1;
             eprojlist[i][1] = i+1;
-            printf("projlist %d : %d , %d\n", i, eprojlist[i][0], eprojlist[i][1]);
+            IFBUG printf("projlist %d : %d , %d\n", i, eprojlist[i][0], eprojlist[i][1]); ENDBUG
         }
         for(int i=0; i<en[2]; i++){
             index = i+en[1];
             eprojlist[index][0] = 2;
             eprojlist[index][1] = i+1;
-            printf("projlist %d : %d , %d\n", index, eprojlist[index][0], eprojlist[index][1]);
+            IFBUG printf("projlist %d : %d , %d\n", index, eprojlist[index][0], eprojlist[index][1]); ENDBUG
         }
     }
 
-    printf("come out\n");
+    IFBUG printf("come out\n"); ENDBUG
 
     erecsize[0] = 0; //record size of projected output
     for(i=0; i<enumprojattrs; i++){
         int r = eprojlist[i][0]; //relation
         int at = eprojlist[i][1]; //attribute #
         erecsize[0] += eattributes[r][at][1];
-        printf("r %d, at %d, erecsize %d\n", r, at, erecsize[0]);
+        IFBUG printf("r %d, at %d, erecsize %d\n", r, at, erecsize[0]); ENDBUG
     }
 
     ewrite_metadata();
@@ -168,7 +168,7 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
         eblockrec[i] = eblocksize/erecsize[i];
         bufferoffset = i * eblocksize;
         ebaseptrs[i] = ebuffer + bufferoffset;
-        printf("rel %d, recsize %d, blocksize %d, blockrec %d, bufferoffset %d\n", i, erecsize[i], eblocksize, eblockrec[i], bufferoffset);
+        IFBUG printf("rel %d, recsize %d, blocksize %d, blockrec %d, bufferoffset %d\n", i, erecsize[i], eblocksize, eblockrec[i], bufferoffset); ENDBUG
     }
 
     for(int i=0; i<3; i++){
@@ -184,8 +184,8 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
     next1();
     next2();
 
-    printf("Buff1 : #rec %d\n", total1);
-    printf("Buff2 : #rec %d\n", total2);
+    IFBUG printf("Buff1 : #rec %d\n", total1); ENDBUG
+    IFBUG printf("Buff2 : #rec %d\n", total2); ENDBUG
 
     done = false; //always initialize global variables
 
@@ -204,11 +204,11 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
         else{
             if(adjustment == false){
                 adjust();
-                printf("adjustment called \n");
+                IFBUG printf("adjustment called \n"); ENDBUG
                 adjustment = true;
             }
             else{
-                printf("Already adjusted \n");
+                IFBUG printf("Already adjusted \n"); ENDBUG
             }
             //handle all combinations of left tuple with matching entries in right without actually incrementing
             //right pointer
@@ -229,7 +229,7 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
 
     /* testing compare and writeout
     int comp = ecompare(eptrs[1], eptrs[2]);
-    printf("compare result %d\n", comp);
+    IFBUG printf("compare result %d\n", comp); ENDBUG
 
     ewriteout(eptrs[1], eptrs[2]);
     */
@@ -238,15 +238,15 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
     einitbufptr(0);
     fwrite(eptrs[0], erecsize[0], eblockrec[0]-capout, efiles[0]);
 
-    //system("rm *.jtmp");										//remove all the join temp files once program is complete.
     eclose_files();
+    system("rm *.jtmp");										//remove all the join temp files once program is complete.
     return 0;
 }
 
 void adjust(){
     if(total2 < eblockrec[2]){
         //i.e buffer is not full so no adjustment needed at all
-        printf("adjust() : buffer not full. so no adjustment needed\n");
+        IFBUG printf("adjust() : buffer not full. so no adjustment needed\n"); ENDBUG
         return;
     }
 
@@ -260,11 +260,11 @@ void adjust(){
     }
 
     if(rem > 0){//i.e duplicates doesn't extend till end of buffer, so we're done
-        printf("adjust() : no adjustment required as such as dupl end before end of buffer\n");
+        IFBUG printf("adjust() : no adjustment required as such as dupl end before end of buffer\n"); ENDBUG
     }
     else{
         int rem = total2 - curr2;
-        printf("adjust() : Shifting %d records\n", rem);
+        IFBUG printf("adjust() : Shifting %d records\n", rem); ENDBUG
 	    memcpy(ebaseptrs[2], eptrs[2], rem * erecsize[2]);
         eptrs[2] = ebaseptrs[2] + rem * erecsize[2]; //this is to where rec read from file will be copied
 
@@ -281,15 +281,15 @@ void next1(){
     if(curr1 == total1){//read next block from file
         einitbufptr(1);
 		total1 = fread(eptrs[1],erecsize[1],eblockrec[1],efiles[1]);
-        printf("next1() : readsize %d, readmax# %d newtotal%d\n", erecsize[1], eblockrec[1], total1);
+        IFBUG printf("next1() : readsize %d, readmax# %d newtotal%d\n", erecsize[1], eblockrec[1], total1); ENDBUG
         curr1 = 0;
         if(total1 == 0){
             done = true; //file has ended
-            printf("next1() : Relation 1 exausted\n");
+            IFBUG printf("next1() : Relation 1 exausted\n"); ENDBUG
         }
     }
     else{
-        printf("next1() : incrementing to curr %d/%d\n", curr1, total1);
+        IFBUG printf("next1() : incrementing to curr %d/%d\n", curr1, total1); ENDBUG
         eptrs[1] += erecsize[1];
     }
 }
@@ -299,15 +299,15 @@ void next2(){
     if(curr2 == total2){//read next block from file
         einitbufptr(2);
 		total2 = fread(eptrs[2],erecsize[2],eblockrec[2],efiles[2]);
-        printf("next2() : readsize %d, readmax# %d newtotal%d\n", erecsize[2], eblockrec[2], total2);
+        IFBUG printf("next2() : readsize %d, readmax# %d newtotal%d\n", erecsize[2], eblockrec[2], total2); ENDBUG
         curr2 = 0;
         if(total2 == 0) {
-            printf("next2() : Relation 2 exausted\n");
+            IFBUG printf("next2() : Relation 2 exausted\n"); ENDBUG
             done = true; //file has ended
         }
     }
     else{
-        printf("next2() : incrementing to curr %d/%d\n", curr2, total2);
+        IFBUG printf("next2() : incrementing to curr %d/%d\n", curr2, total2); ENDBUG
         eptrs[2] += erecsize[2];
     }
 }
@@ -325,7 +325,7 @@ void ewriteout(void *left, void *right)
         int r = eprojlist[i][0];
         int at = eprojlist[i][1];
         void * rec = (r==1) ? left : right;
-        printf("ewriteout : memcpy size %d\n", eattributes[r][at][1]);
+        IFBUG printf("ewriteout : memcpy size %d\n", eattributes[r][at][1]); ENDBUG
 	    memcpy(eptrs[0],rec + eattributes[r][at][2],eattributes[r][at][1]);
         eptrs[0] += eattributes[r][at][1];
     }
@@ -391,7 +391,7 @@ int ecompare(const void* a, const void* b)
 		{
 			case 1:								//Integer comparision
 				tempi = (*(int*)(a+offset1))-(*(int*)(b+offset2));
-                printf("ecompare : case1 : diff %d - %d = %d\n",(*(int*)(a+offset1)),(*(int*)(b+offset2)), tempi);
+                IFBUG printf("ecompare : case1 : diff %d - %d = %d\n",(*(int*)(a+offset1)),(*(int*)(b+offset2)), tempi); ENDBUG
 				if(tempi>0)
 					ans = sign;
 				else if(tempi<0)
