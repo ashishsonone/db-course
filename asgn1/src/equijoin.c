@@ -241,6 +241,36 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
 }
 
 void adjust(){
+    if(total2 < eblockrec[2]){
+        //i.e buffer is not full so no adjustment needed at all
+        printf("adjust() : buffer not full. so no adjustment needed\n");
+        return;
+    }
+
+    //find if records needs to be shifted. This is required if duplicates extend till end of buffer
+    int rem = total2 - curr2;
+    temp_ptr = eptrs[2];
+    while(rem > 0){
+        int c = ecompare(eptrs[1], temp_ptr);
+        temp_ptr += erecsize[2];
+        rem--;
+    }
+
+    if(rem > 0){//i.e duplicates doesn't extend till end of buffer, so we're done
+        printf("adjust() : no adjustment required as such as dupl end before end of buffer\n");
+    }
+    else{
+        int rem = total2 - curr2;
+        printf("adjust() : Shifting %d records\n", rem);
+	    memcpy(ebaseptrs[2], eptrs[2], rem * erecsize[2]);
+        eptrs[2] = ebaseptrs[2] + rem * erecsize[2]; //this is to where rec read from file will be copied
+
+		int t = fread(eptrs[2],erecsize[2],eblockrec[2]-rem,efiles[2]);
+        total2 = rem + t;
+
+        curr2 = 0;
+        eptrs[2] = ebaseptrs[2];
+    }
 }
 
 void next1(){
