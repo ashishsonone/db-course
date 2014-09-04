@@ -1,0 +1,15 @@
+CREATE tables/info ATTRS int char 10 char 20 int
+INSERT tables/info VALUES 1 2011 Korth 19
+INSERT tables/info VALUES 2 2011 Sonone 19
+INSERT tables/info VALUES 3 2011 Garg 18
+INSERT tables/info VALUES 4 2011 Hiray 20
+INSERT tables/info VALUES 1 2012 Kumar 19
+INSERT tables/info VALUES 2 2012 Roy 21
+INSERT tables/info VALUES 3 2013 Harsh 17
+INSERT tables/info VALUES 4 2013 Soni 20
+quit
+
+Table student info. Attributes are:
+id  year   name   age
+
+'id' + 'year' form primary key
