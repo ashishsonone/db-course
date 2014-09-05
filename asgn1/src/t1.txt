@@ -1,0 +1,14 @@
+CREATE t1 ATTRS int char 10 char 20 double
+INSERT t1 VALUES 0 2011 Korth 19
+INSERT t1 VALUES 1 2011 Korth 20
+INSERT t1 VALUES 1 2011 Sonone 19
+INSERT t1 VALUES 1 2011 Kumar 26
+INSERT t1 VALUES 1 2011 Roy 49
+INSERT t1 VALUES 3 2011 Garg 18
+INSERT t1 VALUES 5 2011 Hiray 20
+quit
+
+Table student info. Attributes are:
+id  year   name   age
+
+'id' + 'year' form primary key

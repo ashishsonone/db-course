@@ -240,6 +240,7 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
 
     eclose_files();
     system("rm *.jtmp");										//remove all the join temp files once program is complete.
+    printf("Equijoin over\n");
     return 0;
 }
 
