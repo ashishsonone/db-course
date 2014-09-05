@@ -13,6 +13,13 @@ int** make2dint(int x,int y)
 	return ptr;
 }
 
+void free2dint(int** ptr, int x)
+{
+	for(int i=0;i<x;i++)
+        free(ptr[i]);
+    free(ptr);
+}
+
 void openfiles(int p, int k, int sp)
 {
 	char fname[50];

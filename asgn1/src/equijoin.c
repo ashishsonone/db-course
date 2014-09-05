@@ -4,13 +4,14 @@
 #include "header.h"
 #include "equijoin.h"
 
-#define BUFFSIZE 400
+#define BUFFSIZE 8192
 #define DEBUG 0
 #define IFBUG if(DEBUG==1){
 #define ENDBUG }
 
 //FUNCTIONS defined elsewhere
 int** make2dint(int,int);
+void free2dint(int** ptr, int x);
 // 'e' prefix stands for equijoin. Used for equijoin explicitly
 FILE *efiles[3];
 
@@ -49,6 +50,7 @@ bool adjustment; //whether right relation's buffer was "adjusted", so that dupli
 /* Add equijoin code here */
 int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlist1[], int attrlist2[], int numprojattrs, int projlist[][2])
 {
+    IFBUG printf("equijoin entered \n"); ENDBUG
     int i, irel;
 
     //copy join attributes and proj attributes;
@@ -241,6 +243,15 @@ int equijoin(char* rel1, char* rel2, char* outrel, int numjoinattrs, int attrlis
     eclose_files();
     system("rm *.jtmp");										//remove all the join temp files once program is complete.
     printf("Equijoin over\n");
+    //free memory
+	free(eattrlist1);
+	free(eattrlist2);
+	free(ebuffer);
+    //free mem created using make2dint
+    for(irel=1; irel<=2; irel++){
+        free2dint(eattributes[irel], en[irel]+1);
+    }
+    free2dint(eprojlist, enumprojattrs);
     return 0;
 }
 
@@ -266,14 +277,18 @@ void adjust(){
     else{
         int rem = total2 - curr2;
         IFBUG printf("adjust() : Shifting %d records\n", rem); ENDBUG
-	    memcpy(ebaseptrs[2], eptrs[2], rem * erecsize[2]);
-        eptrs[2] = ebaseptrs[2] + rem * erecsize[2]; //this is to where rec read from file will be copied
+        if(rem != total2){
+            for(int i=0; i< rem; i++){
+                memcpy(ebaseptrs[2] + i*erecsize[2], eptrs[2] + i*erecsize[2], erecsize[2]);
+            }
+            eptrs[2] = ebaseptrs[2] + rem * erecsize[2]; //this is to where rec read from file will be copied
 
-		int t = fread(eptrs[2],erecsize[2],eblockrec[2]-rem,efiles[2]);
-        total2 = rem + t;
+            int t = fread(eptrs[2],erecsize[2],eblockrec[2]-rem,efiles[2]);
+            total2 = rem + t;
 
-        curr2 = 0;
-        eptrs[2] = ebaseptrs[2];
+            curr2 = 0;
+            eptrs[2] = ebaseptrs[2];
+        }
     }
 }
 

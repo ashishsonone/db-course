@@ -6,6 +6,8 @@ void *buffer, *ptrs[K+1]; 									//ptrs 1 to K are in buffers and 0 is out buf
 unsigned n;
 
 int** make2dint(int,int);
+void free2dint(int** ptr, int x);
+
 int compare(const void*, const void*);
 void initbufptr(int);
 void openfiles(int, int, int);
@@ -153,6 +155,11 @@ int sort(char *infilename, char *outfilename, int numattrs, int attrs[], int buf
 	printf("Sucess!! Total of %d records sorted.\n",recs);
 	fclose(infile);
 	fclose(outfile);
+    //free memory one by one
+    free(buffer);
+    free(sortparams);
+    //free mem created using make2dint
+	free2dint(attributes, 1+(signed)n);
 	return 0;
 }
 
